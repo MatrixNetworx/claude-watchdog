@@ -3,8 +3,8 @@
 import fcntl, fnmatch, usage_analytics
 import argparse, datetime, hashlib, ipaddress, json, os, pathlib, re, shutil, subprocess, sys, time, collections, sqlite3, shlex
 
-DEFAULT_EXTENSIONS = ['.casm','.ord','.sv','.svh','.vhd','.vhdl','.v','.sdc','.xdc','.qsf','.tcl','.bit','.bin']
-EXT = re.compile(r'(?i)\.(?:casm|ord|sv|svh|vhd|vhdl|v|sdc|xdc|qsf|tcl|bit|bin)(?:\b|$)')
+DEFAULT_EXTENSIONS = ['.ord','.sv','.svh','.vhd','.vhdl','.v','.sdc','.xdc','.qsf','.tcl','.bit','.bin']
+EXT = re.compile(r'(?i)\.(?:ord|sv|svh|vhd|vhdl|v|sdc|xdc|qsf|tcl|bit|bin)(?:\b|$)')
 UPLOAD = re.compile(r'(?i)\b(?:curl|wget|scp|sftp|rsync|rclone|nc|ncat|socat)\b|https?://|\b(?:requests\.post|fetch\s*\()')
 # Conservative command-position triage; never log the raw command.
 NETWORK_CLIENTS = {'curl','wget','scp','sftp','rsync','rclone','nc','ncat','socat'}
