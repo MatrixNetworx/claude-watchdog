@@ -18,7 +18,7 @@ URL = re.compile(r'https?://[^\s\'"<>]+', re.I)
 
 
 # Matches the v5 monitor's configurable extension and glob semantics.
-DEFAULT_EXTENSIONS = ['.casm', '.ord', '.sv', '.svh', '.vhd', '.vhdl', '.v', '.sdc', '.xdc', '.qsf', '.tcl', '.bit', '.bin']
+DEFAULT_EXTENSIONS = ['.ord', '.sv', '.svh', '.vhd', '.vhdl', '.v', '.sdc', '.xdc', '.qsf', '.tcl', '.bit', '.bin']
 ACTIVE_EXTENSIONS = DEFAULT_EXTENSIONS[:]
 ACTIVE_PATTERNS = []
 
@@ -144,7 +144,7 @@ def main():
         print('  Transcript occurrences:', item['occurrences'], '| Transcript files:', len(item['transcripts']))
         print('  Trigger patterns:', ', '.join(c['matched_patterns']) or 'none')
         print('  Explicit transfer syntax heuristic:', c['explicit_transfer_syntax'])
-        print('  CASM/proprietary extension reference:', c['proprietary_reference'])
+        print('  EXAMPLE/proprietary extension reference:', c['proprietary_reference'])
         hosts = sorted(c['hosts'])
         if args.show_hostnames:
             print('  URL hostnames:', ', '.join(hosts) if hosts else '(none detected)')
