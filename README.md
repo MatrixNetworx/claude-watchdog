@@ -86,3 +86,22 @@ heredoc bodies and embedded scripts can be misinterpreted as shell commands.
 A flag is not proof of a transfer; a clean result is not proof that no transfer
 occurred. Windows token-only reporting does not install or support these Linux
 shell-forensics tools.
+
+
+## License
+
+Copyright (C) 2026 MatrixNetworx.
+
+Claude Watchdog is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your option)
+any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE. See [LICENSE](LICENSE) for the complete
+license text.
+
+If you distribute modified versions, you must comply with the GPL's applicable
+source-code, notice, and licensing requirements. Private modifications that
+are not distributed do not by themselves trigger a requirement to publish code.
