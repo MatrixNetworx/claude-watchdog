@@ -1,0 +1,15 @@
+#!/bin/sh
+# Artix/S6-compatible launcher. Does not change the real Claude executable.
+set -u
+WATCHDOG="$HOME/.local/bin/claude_watchdog.py"
+[ -f "$WATCHDOG" ] || { echo "Missing watchdog: $WATCHDOG" >&2; exit 1; }
+command -v python3 >/dev/null 2>&1 || { echo 'python3 required' >&2; exit 127; }
+command -v claude >/dev/null 2>&1 || { echo 'claude not found' >&2; exit 127; }
+python3 "$WATCHDOG" --interval 5 --log-dir "$HOME/WatchDog" &
+watchdog_pid=$!
+cleanup() { kill "$watchdog_pid" 2>/dev/null || :; wait "$watchdog_pid" 2>/dev/null || :; }
+trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+claude "$@"
+exit $?

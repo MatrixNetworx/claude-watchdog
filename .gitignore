@@ -1,0 +1,24 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Local monitoring data
+WatchDog/
+events.jsonl*
+offsets.json
+dedup.sqlite3*
+config.json
+*.log
+
+# Secrets
+.env
+.env.*
+*.key
+*.pem
+
+# OS/editor files
+.DS_Store
+.idea/
+.vscode/
