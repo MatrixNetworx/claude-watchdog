@@ -277,7 +277,7 @@ def risk_report(logdir):
                     if e.get('proprietary_reference') is True or e.get('proprietary_extension') is True:
                         counts[('indicators','proprietary_reference')]+=1
         except OSError: continue
-    return {'report':'claude_watchdog_v4.1','unique_tool_events':sum(v for (scope,kind),v in counts.items() if scope!='indicators'),
+    return {'report':'claude_watchdog_v5.3.1','unique_tool_events':sum(v for (scope,kind),v in counts.items() if scope!='indicators'),
             'counts':{scope+' / '+kind:v for (scope,kind),v in sorted(counts.items())},
             'potential_upload_indicators_new_classifier':len(alerts),'legacy_unverified_upload_indicators':len(legacy),'needs_review_events':len(reviews),'recent_upload_indicators':alerts[-20:],'recent_needs_review':reviews[-20:],
             'network_endpoints_observed':[{'peer':peer,'classification':cls,'records':n} for (peer,cls),n in endpoints.most_common(20)],
@@ -348,7 +348,29 @@ def main():
             for n in range(args.max_archives, 0, -1):
                 src=logdir/('events.jsonl.%d' % n)
                 if src.exists():
-                    if n == args.max_archives: src.unlink()
+                    if n == args.max_archives:
+                        # Preserve evicted rotation files before removing them.
+                        # An archive failure must stop rotation rather than lose evidence.
+                        archive_dir=logdir/'archive'
+                        archive_dir.mkdir(mode=0o700,exist_ok=True)
+                        os.chmod(archive_dir,0o700)
+                        stamp=datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')
+                        target=archive_dir/('events-%s-%d.jsonl' % (stamp,os.getpid()))
+                        # Copy while the rotated source is closed; never overwrite an archive.
+                        with src.open('rb') as inf, target.open('xb') as outf:
+                            os.chmod(target,0o600)
+                            digest=hashlib.sha256()
+                            for chunk in iter(lambda:inf.read(1024*1024),b''):
+                                outf.write(chunk);digest.update(chunk)
+                            outf.flush();os.fsync(outf.fileno())
+                        if target.stat().st_size!=src.stat().st_size:
+                            raise OSError('Archive verification failed; refusing rotation')
+                        manifest=target.with_suffix('.sha256')
+                        with manifest.open('x',encoding='ascii') as mf:
+                            os.chmod(manifest,0o600)
+                            mf.write('%s  %s\n' % (digest.hexdigest(),target.name))
+                            mf.flush();os.fsync(mf.fileno())
+                        src.unlink()
                     else: src.replace(logdir/('events.jsonl.%d' % (n+1)))
             logfile.replace(logdir/'events.jsonl.1')
         def __enter__(self):
@@ -368,16 +390,16 @@ def main():
         def flush(self):
             self.fp.flush()
     with RotatingLog() as out:
-        write_event(out,'watchdog_started',root_sha256_16=fingerprint(args.root),interval=args.interval,version='5.0',subagent_auditing=True,deduplication=True,risk_reporting=True,structural_upload_triage=True)
+        write_event(out,'watchdog_started',root_sha256_16=fingerprint(args.root),interval=args.interval,version='5.3.1',subagent_auditing=True,deduplication=True,risk_reporting=True,structural_upload_triage=True)
         while True:
             pids=processes()
             if set(pids)!=last_processes:
                 write_event(out,'process_snapshot',processes=list(pids.values()))
                 last_processes=set(pids)
-            if pids or args.once:
-                collect_sessions(pathlib.Path(args.root).expanduser(),state,out,db)
-                usage_analytics.collect(pathlib.Path(args.root).expanduser(),usage_db)
-                if pids: collect_sockets(pids,out,seen,time.monotonic())
+            # Always ingest completed transcript records, including when Claude is not running.
+            collect_sessions(pathlib.Path(args.root).expanduser(),state,out,db)
+            usage_analytics.collect(pathlib.Path(args.root).expanduser(),usage_db)
+            if pids: collect_sockets(pids,out,seen,time.monotonic())
             # Retain seen endpoints only while their PID remains alive.
             seen={k:v for k,v in seen.items() if k[0] in pids}
             # Persist completed-record offsets to avoid replaying every session each timer run.
