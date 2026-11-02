@@ -3,7 +3,7 @@
 set -eu
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 command -v python3 >/dev/null 2>&1 || { echo 'Python 3 required' >&2; exit 1; }
-python3 -m py_compile "$ROOT/claude_watchdog.py" "$ROOT/usage_analytics.py" "$ROOT/tools/watchdog_command_structure.py" "$ROOT/tools/watchdog_upload_forensics.py"
+python3 -m py_compile "$ROOT/claude_watchdog.py" "$ROOT/usage_analytics.py" "$ROOT/tools/watchdog_command_structure.py" "$ROOT/tools/watchdog_upload_forensics.py" "$ROOT/tools/watchdog_integrity.py" "$ROOT/tools/watchdog_coverage.py"
 DEST="${HOME}/.local/bin"
 mkdir -p "$DEST" "${HOME}/WatchDog"
 chmod 700 "${HOME}/WatchDog"
@@ -19,6 +19,8 @@ install -m 700 "$ROOT/claude_watchdog.py" "$DEST/claude_watchdog.py"
 install -m 600 "$ROOT/usage_analytics.py" "$DEST/usage_analytics.py"
 install -m 700 "$ROOT/tools/watchdog_command_structure.py" "$DEST/watchdog_command_structure.py"
 install -m 700 "$ROOT/tools/watchdog_upload_forensics.py" "$DEST/watchdog_upload_forensics.py"
+install -m 700 "$ROOT/tools/watchdog_integrity.py" "$DEST/watchdog_integrity.py"
+install -m 700 "$ROOT/tools/watchdog_coverage.py" "$DEST/watchdog_coverage.py"
 install -m 700 "$ROOT/claude-audited" "$DEST/claude-audited"
 echo "Installed to $DEST; existing WatchDog history preserved."
 echo "Configure: python3 \"$DEST/claude_watchdog.py\" --setup --log-dir \"$HOME/WatchDog\""
